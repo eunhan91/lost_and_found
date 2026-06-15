@@ -3,57 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>통합 유실물 원스톱 검색 서비스</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e3db18d80a98e2463f0c9ead021e5491&libraries=services"></script>
+    <title>통합 유실물 센터</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; color: #333; }
+
+        header, nav, footer { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
+        nav { background-color: #34495e; padding: 15px; }
+        
+        /* 결합자 1/5 */
+        nav > .search-container { display: inline-block; }
+        /* 결합자 2/5 */
+        .search-container > form { display: flex; gap: 12px; align-items: center; }
+
+        /* 속성 선택자 1/2 */
+        .search-container input[type="text"] { padding: 10px; width: 250px; border: none; border-radius: 4px; font-size: 14px; }
+        /* 속성 선택자 2/2 */
+        .search-container input[type="date"] { padding: 9px; border: none; border-radius: 4px; font-size: 14px; color: #333; }
+        .search-container input[type="number"] { padding: 10px; width: 60px; border: none; border-radius: 4px; font-size: 14px; text-align: center; }
+        
+        .search-container select { padding: 9px; border: none; border-radius: 4px; font-size: 14px; color: #333; background-color: white; cursor: pointer; }
+        
+        /* 가상 요소 1/2 */
+        .search-container input[type="text"]::placeholder { color: #95a5a6; }
+        
+        /* 결합자 3/5 */
+        .search-container input[type="text"] ~ button { padding: 10px 20px; background-color: #1abc9c; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* 가상 클래스 1/2 */
+        button:hover { background-color: #16a085; }
+        /* 가상 클래스 2/2 */
+        input:focus, select:focus { outline: 2px solid #1abc9c; }
+
+        /* 가상 요소 2/2, Clear 사용 */
+        .clear-fix::after { content: ""; display: block; clear: both; }
+        main { max-width: 1200px; margin: 20px auto; padding: 0 10px; }
+
+        /* Float 사용 1/2 */
+        #list-section { float: left; width: 60%; padding-right: 15px; }
+        /* Float 사용 2/2 */
+        #map-section { float: right; width: 40%; padding-left: 15px; }
+
+        .table-wrapper { width: 100%; max-height: 455px; overflow-y: auto; border: 1px solid #dee2e6; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* 결합자 4/5 */
+        .table-wrapper > table { width: 100%; border-collapse: collapse; background: white; table-layout: fixed; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; font-size: 14px; word-break: break-all; }
+        
+        th { background-color: #f1f3f5; font-weight: bold; position: sticky; top: 0; z-index: 5; box-shadow: inset 0 -1px 0 #dee2e6; }
+        /* 결합자 5/5 */
+        th + th { border-left: 1px solid #dee2e6; }
+
+        th:nth-child(1), td:nth-child(1) { width: 18%; white-space: nowrap; text-align: center; }
+        th:nth-child(2), td:nth-child(2) { width: 32%; }
+        th:nth-child(3), td:nth-child(3) { width: 18%; white-space: nowrap; text-align: center; }
+        th:nth-child(4), td:nth-child(4) { width: 20%; }
+        th:nth-child(5), td:nth-child(5) { width: 14%; white-space: nowrap; text-align: center; }
+        
+        #map { width: 100%; height: 500px; background-color: #e9ecef; border: 1px solid #dee2e6; border-radius: 4px; }
+        h2 { font-size: 18px; margin-bottom: 15px; color: #495057; }
+
+        .agency-police, .agency-subway { font-weight: bold; }
+        .agency-police { color: #2c3e50; }
+        .agency-subway { color: #d35400; }
+        
+        .map-btn { padding: 4px 8px; font-size: 12px; background-color: #e2e8f0; color: #333; border: 1px solid #ccd0d4; border-radius: 3px; cursor: pointer; }
+        .map-btn:hover { background-color: #d1d5db; }
+
+        @media (max-width: 900px) {/*모바일 확경 대응*/
+            #list-section, #map-section { float: none; width: 100%; padding: 0; margin-bottom: 20px; }
+            .search-container form { flex-direction: column; align-items: stretch; gap: 8px; }
+            .search-container input[type="text"], .search-container input[type="date"], .search-container input[type="number"], .search-container select { width: 100%; }
+            table { table-layout: auto; }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e3db18d80a98e2463f0c9ead021e5491&libraries=services&autoload=false"></script>
 </head>
 <body>
 
-    <header>
-        <h1>통합 유실물 원스톱 검색 서비스</h1>
+    <header> <!--시멘틱 요소들 사용-->
+        <h1>통합 유실물 실시간 검색 시스템</h1>
     </header>
 
-    <nav>
+    <nav> 
         <div class="search-container">
-            <input type="text" id="keywordInput" placeholder="분실물 키워드를 입력하세요 (예: 지갑, 핸드폰)">
-            <button id="searchBtn">통합 검색</button>
+            <form id="searchForm" onsubmit="return false;">
+                <input type="text" id="keywordInput" placeholder="분실하신 물품을 입력하세요 (예: 지갑, 키)"> <!--form의 첫번째 input:text-->
+                
+                <select id="agencySelect">
+                    <option value="all">전체 기관 검색</option>
+                    <option value="police">경찰청 데이터만</option>
+                    <option value="subway">대구지하철 데이터만</option>
+                </select>
+                
+                <label style="font-size: 14px; color: white;">분실일 이후 검색: <input type="date" id="dateInput"></label><!--form의 첫번째 input:date-->
+                
+                <label style="font-size: 14px; color: white;">개수: <input type="number" id="rowLimit" value="10" min="1" max="50"></label><!--form의 첫번째 input:number-->
+                
+                <button type="button" id="searchBtn">통합 검색</button>
+            </form>
         </div>
     </nav>
 
     <main class="clear-fix">
-        
         <section id="list-section">
-            <h2>습득물 검색 목록</h2>
-            <table id="resultTable">
-                <thead>
-                    <tr>
-                        <th>기관</th>
-                        <th>물품명</th>
-                        <th>습득일자</th>
-                        <th>보관장소</th>
-                        <th>상세보기</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: #888; padding: 30px 0;">
-                            검색어를 입력하고 검색 버튼을 눌러주세요.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <h2>🔍 유실물 검색 결과</h2>
+            <div class="table-wrapper">
+                <table><!--table 사용-->
+                    <thead>
+                        <tr>
+                            <th>기관</th>
+                            <th>물품명</th>
+                            <th>습득일자</th>
+                            <th>보관장소</th>
+                            <th>위치</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="5" style="text-align: center; color: #7f8c8d; padding: 30px 0;">검색어를 입력해 주세요.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
-        <aside id="map-section">
-            <h2>보관처 위치 정보</h2>
+        <section id="map-section">
+            <h2>📍 보관 장소 지도 위치</h2>
             <div id="map"></div>
-        </aside>
-        
+        </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 통합 유실물 원스톱 검색 서비스. All Rights Reserved.</p>
+    <footer id="footer"> 
+        <p>© 통합 유실물 센터 실시간 연동 시스템</p>
     </footer>
 
     <script src="main.js"></script>
