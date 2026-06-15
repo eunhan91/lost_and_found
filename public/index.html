@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합 유실물 원스톱 검색 서비스</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=e3db18d80a98e2463f0c9ead021e5491&libraries=services"></script>
+</head>
+<body>
+
+    <header>
+        <h1>통합 유실물 원스톱 검색 서비스</h1>
+    </header>
+
+    <nav>
+        <div class="search-container">
+            <input type="text" id="keywordInput" placeholder="분실물 키워드를 입력하세요 (예: 지갑, 핸드폰)">
+            <button id="searchBtn">통합 검색</button>
+        </div>
+    </nav>
+
+    <main class="clear-fix">
+        
+        <section id="list-section">
+            <h2>습득물 검색 목록</h2>
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>기관</th>
+                        <th>물품명</th>
+                        <th>습득일자</th>
+                        <th>보관장소</th>
+                        <th>상세보기</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888; padding: 30px 0;">
+                            검색어를 입력하고 검색 버튼을 눌러주세요.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <aside id="map-section">
+            <h2>보관처 위치 정보</h2>
+            <div id="map"></div>
+        </aside>
+        
+    </main>
+
+    <footer>
+        <p>&copy; 2026 통합 유실물 원스톱 검색 서비스. All Rights Reserved.</p>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>
